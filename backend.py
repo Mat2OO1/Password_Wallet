@@ -37,35 +37,52 @@ def get_password():
 
 
 def add_password(name, email, password):
-    enc = encrypt_password(password)
-    save_to_db(name, email, enc)
+    if len(password) == 0 or (len(name) == 0 or len(email) == 0):
+        return False
+    else:
+        enc = encrypt_password(password)
+        save_to_db(name, email, enc)
+        return True
 
 
-def edit_password(name, email, password):
-    enc = encrypt_password(password)
-    edit_db(name, email, enc)
-    pass
+def edit_password(name, email, password, id):
+    if len(password) == 0 or (len(name) == 0 or len(email) == 0):
+        return False
+    else:
+        enc = encrypt_password(password)
+        edit_db(name, email, enc, id)
+        return True
 
 
-def delete_password():
-    delete_from_db()
+def delete_password(id):
+    return delete_from_db(id)
 
 
-def generate_password(num_of_special, length, num_of_capital, num_of_numbers):
-    upper = string.ascii_uppercase
-    numbers = string.digits
-    alphabet = string.ascii_letters + string.digits
-    special = '!@#$%^&*()-_'
+def generate_password(length, num_of_special, capital, num_of_numbers):
+    if not (length.isnumeric() or num_of_special.isnumeric() or password.isnumeric() or num_of_numbers.isnumeric()):
+        return False, None
+    else:
+        num_of_special = int(num_of_special)
+        length = int(length)
+        capital = int(capital)
+        num_of_numbers = int(num_of_numbers)
+        if(length < num_of_special + capital + num_of_numbers):
+            return False, None
+        else:
+            upper = string.ascii_uppercase
+            numbers = string.digits
+            alphabet = string.ascii_letters + string.digits
+            special = '!@#$%^&*()-_'
 
-    password = ''.join(secrets.choice(upper) for i in range(num_of_capital))
-    password += ''.join(secrets.choice(numbers)
-                        for i in range(num_of_numbers))
-    password += ''.join(secrets.choice(special)
-                        for i in range(num_of_special))
-    password += ''.join(secrets.choice(alphabet) for i in range(
-        num_of_special + num_of_capital + num_of_numbers, length))
-    password = ''.join(random.sample(password, len(password)))
-    return password
+            password = ''.join(secrets.choice(upper) for i in range(capital))
+            password += ''.join(secrets.choice(numbers)
+                                for i in range(num_of_numbers))
+            password += ''.join(secrets.choice(special)
+                                for i in range(num_of_special))
+            password += ''.join(secrets.choice(alphabet) for i in range(
+                num_of_special + capital + num_of_numbers, length))
+            password = ''.join(random.sample(password, len(password)))
+            return True, password
 
 
 def show_passwords():
@@ -114,19 +131,19 @@ def create_db():
     conn.close()
 
 
-def edit_db(name, email, password):
+def edit_db(name, email, password, id):
     conn = sqlite3.connect('db.sqlite')
     c = conn.cursor()
-    c.execute("UPDATE Password_wallet SET password = ? WHERE name = ? AND email = ? ",
-              (password, name, email))
+    c.execute("UPDATE Password_wallet SET password =?, name=?, email=? WHERE id =?",
+              (password, name, email, id))
     conn.commit()
     conn.close()
 
 
-def delete_from_db(name, email):
+def delete_from_db(id):
     conn = sqlite3.connect('db.sqlite')
     c = conn.cursor()
-    c.execute(
-        "DELETE FROM Password_wallet WHERE name = ? AND email = ? ", (name, email))
+    c.execute("DELETE FROM Password_wallet WHERE id =? ", id)
     conn.commit()
     conn.close()
+    return True
