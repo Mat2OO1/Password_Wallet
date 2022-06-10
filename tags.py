@@ -2,6 +2,7 @@ from importlib.metadata import entry_points
 import tkinter as tk
 from tkinter import CENTER, ttk
 import tkinter.font as tkFont
+from venv import create
 from backend import *
 
 
@@ -31,9 +32,39 @@ class WelcomeWindow:
 
         if(plogin()):
             registerButton['state'] = 'disabled'
+        else:
+            loginButton['state'] = 'disabled'
 
     def register(self):
-        print("command")
+        self.win = tk.Toplevel(self.root)
+        self.win.title("Register")
+        self.win.geometry('400x300')
+        name = tk.Label(self.win)
+        name["justify"] = "center"
+        name["text"] = "Password:"
+        name.place(x=20, y=120, width=100, height=20)
+        self.password_entry = tk.Entry(self.win,
+                                       font=('calibri', 10, 'normal'), show='*')
+        self.password_entry.place(x=130, y=120, width=200, height=20)
+
+        commitButton = tk.Button(self.win, command=self.registerProcessed, text='Add', font=(
+            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=280, y=160, width=70, height=25)
+
+    def registerProcessed(self):
+        password = self.password_entry.get()
+        if first_login(password):
+            self.win.destroy()
+            self.root.destroy()
+            self.app = LoginWindow(self.root)
+            self.root.mainloop()
+
+        else:
+            window = tk.Toplevel()
+            label = tk.Label(window, text="Incorrect data!")
+            label.pack(fill='x', padx=50, pady=5)
+            button_close = tk.Button(
+                window, text="Close", command=window.destroy)
+            button_close.pack(fill='x')
 
     def log_in(self):
         self.root.destroy()  # close the current window
@@ -48,6 +79,7 @@ class LoginWindow:
         self.app = (self.root)
         self.root.title("Password Wallet")
         self.root.geometry('600x500')
+        self.root.config(bg='gray17')
         title = tk.Label(self.root)
         title["justify"] = "center"
         title["text"] = "Password Wallet"
@@ -303,7 +335,6 @@ class AccountWindow:
 
         self.generator = tk.Label(self.win)
         self.generator["justify"] = "center"
-        self.generator["text"] = "Length of password"
         self.generator.place(x=50, y=250, width=300, height=20)
 
         self.length_entry = tk.Entry(self.win,

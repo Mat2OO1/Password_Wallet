@@ -25,15 +25,12 @@ def check_password(password):
         return False
 
 
-def first_login():
+def first_login(password):
     with open('secrets.bin', 'wb') as f:
-        f.write(encrypt_password(get_password()))
+        f.write(encrypt_password(password))
     f.close()
-
-
-def get_password():
-    password = 'lubiekoty'
-    return password
+    create_db()
+    return True
 
 
 def add_password(name, email, password):
