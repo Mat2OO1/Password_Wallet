@@ -2,8 +2,13 @@ from importlib.metadata import entry_points
 import tkinter as tk
 from tkinter import CENTER, ttk
 import tkinter.font as tkFont
-from venv import create
 from backend import *
+import customtkinter
+
+# Modes: system (default), light, dark
+customtkinter.set_appearance_mode("dark")
+# Themes: blue (default), dark-blue, green
+customtkinter.set_default_color_theme("dark-blue")
 
 
 class WelcomeWindow:
@@ -11,44 +16,75 @@ class WelcomeWindow:
         self.root = root
         self.root.title("Password Wallet")
         self.root.geometry('600x500')
-        title = tk.Label(root)
-        title["justify"] = "center"
-        title["text"] = "Password Wallet"
-        title["font"] = tkFont.Font(family='Calibri', size=25, weight='bold')
-        title.place(x=100, y=5, width=400, height=40)
+        frame = customtkinter.CTkFrame(master=root,
+                                       width=500,
+                                       height=450,
+                                       corner_radius=10)
+        frame.pack(padx=20, pady=20)
+        title = customtkinter.CTkLabel(
+            master=frame, width=120, height=25, corner_radius=8, justify='center', text="Password Wallet")
+        title.place(relx=0.5, rely=0.2, anchor=CENTER)
 
-        info = tk.Label(root)
-        info["justify"] = "center"
-        info["text"] = "Please log in to see your passwords. If its your first log in, click register"
-        info.place(x=100, y=100, width=400, height=50)
+        info = customtkinter.CTkLabel(
+            master=frame,
+            width=400,
+            height=40,
+            corner_radius=8,
+            justify='center',
+            text="Please log in to see your passwords. \n If its your first log in, click register")
+        info.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-        loginButton = tk.Button(root, command=self.log_in, text='Log In', font=(
-            "Calibri", 12), bd=3, activeforeground='white', activebackground='gray', justify='center')
-        loginButton.place(x=360, y=220, width=70, height=25)
+        loginButton = customtkinter.CTkButton(
+            master=frame,
+            width=120,
+            height=32,
+            border_width=0,
+            corner_radius=8,
+            command=self.log_in,
+            text='Log In')
+        loginButton.place(relx=0.65, rely=0.7, anchor=CENTER)
 
-        registerButton = tk.Button(root, command=self.register, text='Register', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center')
-        registerButton.place(x=160, y=220, width=70, height=25)
+        registerButton = customtkinter.CTkButton(master=frame,
+                                                 width=120,
+                                                 height=32,
+                                                 border_width=0,
+                                                 corner_radius=8,
+                                                 command=self.register,
+                                                 text='Register')
+        registerButton.place(relx=0.35, rely=0.7, anchor=CENTER)
 
         if(plogin()):
-            registerButton['state'] = 'disabled'
+            registerButton.configure(state=tk.DISABLED)
         else:
-            loginButton['state'] = 'disabled'
+            loginButton.configure(state=tk.DISABLED)
 
     def register(self):
-        self.win = tk.Toplevel(self.root)
+        self.win = customtkinter.CTkToplevel(self.root)
         self.win.title("Register")
         self.win.geometry('400x300')
-        name = tk.Label(self.win)
-        name["justify"] = "center"
-        name["text"] = "Password:"
-        name.place(x=20, y=120, width=100, height=20)
-        self.password_entry = tk.Entry(self.win,
-                                       font=('calibri', 10, 'normal'), show='*')
-        self.password_entry.place(x=130, y=120, width=200, height=20)
+        frame = customtkinter.CTkFrame(master=self.win,
+                                       width=500,
+                                       height=450,
+                                       corner_radius=10)
+        frame.pack(padx=20, pady=20)
+        name = customtkinter.CTkLabel(
+            frame,
+            justify="center",
+            text="Password:")
+        name.place(relx=0.2, rely=0.5, anchor=CENTER)
+        self.password_entry = customtkinter.CTkEntry(master=frame,
+                                                     show='*')
+        self.password_entry.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-        commitButton = tk.Button(self.win, command=self.registerProcessed, text='Add', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=280, y=160, width=70, height=25)
+        commitButton = customtkinter.CTkButton(
+            master=frame,
+            command=self.registerProcessed,
+            width=120,
+            height=32,
+            border_width=0,
+            corner_radius=8,
+            text='Add')
+        commitButton.place(relx=0.8, rely=0.8, anchor=CENTER)
 
     def registerProcessed(self):
         password = self.password_entry.get()
@@ -59,87 +95,110 @@ class WelcomeWindow:
             self.root.mainloop()
 
         else:
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Incorrect data!")
+            window = customtkinter.CTkToplevel()
+            label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
+            button_close = customtkinter.CTkButton(
                 window, text="Close", command=window.destroy)
             button_close.pack(fill='x')
 
     def log_in(self):
-        self.root.destroy()  # close the current window
-        self.app = LoginWindow(self.root)  # create Demo2 window
-        self.root.mainloop()
+        self.root.withdraw()
+        toplevel = customtkinter.CTkToplevel(self.root)
+        toplevel.geometry("350x350")
+        app = LoginWindow(toplevel)
 
 
 class LoginWindow:
-
     def __init__(self, root):
-        self.root = tk.Tk()
-        self.app = (self.root)
+        self.root = root
         self.root.title("Password Wallet")
         self.root.geometry('600x500')
-        self.root.config(bg='gray17')
-        title = tk.Label(self.root)
-        title["justify"] = "center"
-        title["text"] = "Password Wallet"
-        title["font"] = tkFont.Font(family='Calibri', size=25, weight='bold')
-        title.place(x=100, y=5, width=400, height=40)
+        frame = customtkinter.CTkFrame(master=self.root,
+                                       width=500,
+                                       height=450,
+                                       corner_radius=10)
+        frame.pack(padx=20, pady=20)
 
-        text = tk.Label(self.root)
-        text["justify"] = "center"
-        text["text"] = "Password:"
-        text["font"] = tkFont.Font(family='Calibri', size=10)
-        text.place(x=60, y=220, width=80, height=40)
+        text = customtkinter.CTkLabel(master=frame,
+                                      justify="center",
+                                      width=140,
+                                      height=25,
+                                      corner_radius=8,
+                                      text="Password:")
+        text.place(relx=0.2, rely=0.5, anchor=CENTER)
 
-        info = tk.Label(self.root)
-        info["justify"] = "center"
-        info["text"] = "Please enter your password:"
-        info.place(x=110, y=100, width=400, height=50)
+        info = customtkinter.CTkLabel(master=frame,
+                                      justify="center",
+                                      width=120,
+                                      height=25,
+                                      corner_radius=8,
+                                      text="Please enter your password:")
+        info.place(relx=0.5, rely=0.2, anchor=CENTER)
 
-        self.name_entry = tk.Entry(self.root,
-                                   font=('calibri', 10, 'normal'), show='*')
-        self.name_entry.place(x=140, y=220, width=200, height=30)
-        commitButton = tk.Button(self.root, command=self.password_process, text='Log In', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=350, y=220, width=70, height=25)
+        self.name_entry = customtkinter.CTkEntry(master=frame,
+                                                 show='*')
+        self.name_entry.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+        commitButton = customtkinter.CTkButton(master=frame,
+                                               command=self.password_process,
+                                               width=120,
+                                               height=32,
+                                               border_width=0,
+                                               corner_radius=8,
+                                               text='Log In')
+        commitButton.place(relx=0.8, rely=0.8, anchor=CENTER)
 
     def password_process(self):
         password = self.name_entry.get()
         if check_password(password):
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Correct password!")
+            self.window = customtkinter.CTkToplevel()
+            label = customtkinter.CTkLabel(
+                self.window, text="Correct password!")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
-                window, text="Close", command=window.destroy)
+            button_close = customtkinter.CTkButton(
+                self.window, text="Close", command=self.new_window)
             button_close.pack(fill='x')
-            self.new_window()
         else:
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Password Incorrect!")
+            window = customtkinter.CTkToplevel()
+            label = customtkinter.CTkLabel(window, text="Password Incorrect!")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
+            button_close = customtkinter.CTkButton(
                 window, text="Close", command=window.destroy)
             button_close.pack(fill='x')
 
     def new_window(self):
-        self.root.destroy()  # close the current window
-        self.app = AccountWindow(self.root)  # create Demo2 window
-        self.root.mainloop()
+        self.window.destroy()
+        self.root.withdraw()
+        toplevel = customtkinter.CTkToplevel(self.root)
+        app = AccountWindow(toplevel)
 
 
 class AccountWindow:
     def __init__(self, root):
-        self.root = tk.Tk()
-        self.app = (self.root)
+        self.root = root
         self.root.title("Password Wallet")
-        self.root.geometry('600x500')
-        title = tk.Label(self.root)
-        title["justify"] = "center"
-        title["text"] = "Password Wallet"
-        title["font"] = tkFont.Font(family='Calibri', size=25, weight='bold')
+        self.root.geometry('700x600')
+        self.frame = customtkinter.CTkFrame(master=self.root,
+                                            width=500,
+                                            height=450,
+                                            corner_radius=10)
+        self.frame.pack(padx=20, pady=20)
+        title = customtkinter.CTkLabel(master=self.frame,
+                                       justify="center",
+                                       width=140,
+                                       height=25,
+                                       corner_radius=8,
+                                       text="Password Wallet"
+                                       )
         title.place(x=100, y=5, width=400, height=40)
         output = show_passwords()
-        self.table = ttk.Treeview(self.root)
+        style = ttk.Style(root)
+        style.theme_use("clam")
+        style.configure("Treeview", background="#373a45",
+                        fieldbackground="#373a45", foreground="#373a45")
+
+        self.table = ttk.Treeview(self.frame)
         self.table['columns'] = ('id', 'nazwa', 'email', 'haslo')
         self.table.column("#0", width=0, anchor=CENTER)
         self.table.column("id", width=10, anchor=CENTER)
@@ -157,207 +216,262 @@ class AccountWindow:
                               values=(row[0], row[1], row[2], row[3]))
             i += 1
         self.table.pack()
-        self.table.place(x=50, y=100, width=400, height=300)
-        addButton = tk.Button(self.root, command=self.add, text='Add Password', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=485, y=105, width=110, height=40)
-        editButton = tk.Button(self.root, command=self.edit, text='Edit Password', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=485, y=155, width=110, height=40)
-        deleteButton = tk.Button(self.root, command=self.delete, text='Delete Password', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=485, y=205, width=110, height=40)
-        generateButton = tk.Button(self.root, command=self.generate, text='Generate Password', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=485, y=255, width=110, height=40)
+        self.table.place(relx=0.35, rely=0.5, anchor=CENTER)
+        addButton = customtkinter.CTkButton(master=self.frame,
+                                            command=self.add,
+                                            text='Add Password',
+                                            width=120,
+                                            height=32,
+                                            border_width=0,
+                                            corner_radius=8)
+        addButton.place(relx=0.8, rely=0.2, anchor=CENTER)
+
+        editButton = customtkinter.CTkButton(master=self.frame,
+                                             command=self.edit,
+                                             text='Edit Password',
+                                             width=120,
+                                             height=32,
+                                             border_width=0,
+                                             corner_radius=8)
+        editButton.place(relx=0.8, rely=0.35, anchor=CENTER)
+
+        deleteButton = customtkinter.CTkButton(master=self.frame,
+                                               command=self.delete,
+                                               text='Delete Password',
+                                               width=120,
+                                               height=32,
+                                               border_width=0,
+                                               corner_radius=8)
+        deleteButton.place(relx=0.8, rely=0.5, anchor=CENTER)
+
+        generateButton = customtkinter.CTkButton(master=self.frame,
+                                                 command=self.generate,
+                                                 text='Generate Password',
+                                                 width=120,
+                                                 height=32,
+                                                 border_width=0,
+                                                 corner_radius=8)
+        generateButton.place(relx=0.8, rely=0.65, anchor=CENTER)
+
+        exitButton = customtkinter.CTkButton(master=self.frame,
+                                             command=self.root.quit,
+                                             text='Exit',
+                                             width=120,
+                                             height=32,
+                                             border_width=0,
+                                             corner_radius=8)
+        exitButton.place(relx=0.8, rely=0.9, anchor=CENTER)
 
     def add(self):
-        self.win = tk.Toplevel(self.root)
-        self.win.title("Add New Password")
+        self.win = customtkinter.CTkToplevel(master=self.root)
+        self.win.title("Register")
         self.win.geometry('400x300')
-        name = tk.Label(self.win)
-        name["justify"] = "center"
-        name["text"] = "name"
-        name.place(x=20, y=20, width=100, height=20)
+        frame = customtkinter.CTkFrame(master=self.win,
+                                       width=500,
+                                       height=450,
+                                       corner_radius=10)
+        frame.pack(padx=20, pady=20)
 
-        email = tk.Label(self.win)
-        email["justify"] = "center"
-        email["text"] = "e-mail"
-        email.place(x=20, y=70, width=100, height=20)
+        name = customtkinter.CTkLabel(master=frame,
+                                      justify='center',
+                                      text='name')
+        name.place(relx=0.3, rely=0.2, anchor=CENTER)
 
-        password = tk.Label(self.win)
-        password["justify"] = "center"
-        password["text"] = "password"
-        password.place(x=20, y=120, width=100, height=20)
-        self.name_entry = tk.Entry(self.win,
-                                   font=('calibri', 10, 'normal'))
-        self.name_entry.place(x=130, y=20, width=200, height=20)
+        email = customtkinter.CTkLabel(master=frame,
+                                       justify="center",
+                                       text="e-mail")
+        email.place(relx=0.3, rely=0.4, anchor=CENTER)
 
-        self.email_entry = tk.Entry(self.win,
-                                    font=('calibri', 10, 'normal'))
-        self.email_entry.place(x=130, y=70, width=200, height=20)
+        password = customtkinter.CTkLabel(master=frame,
+                                          justify="center",
+                                          text="password")
+        password.place(relx=0.3, rely=0.6, anchor=CENTER)
 
-        self.password_entry = tk.Entry(self.win,
-                                       font=('calibri', 10, 'normal'), show='*')
-        self.password_entry.place(x=130, y=120, width=200, height=20)
+        self.name_entry = customtkinter.CTkEntry(frame)
+        self.name_entry.place(relx=0.6, rely=0.2, anchor=CENTER)
 
-        commitButton = tk.Button(self.win, command=self.commit, text='Add', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=280, y=160, width=70, height=25)
+        self.email_entry = customtkinter.CTkEntry(frame)
+        self.email_entry.place(relx=0.6, rely=0.4, anchor=CENTER)
+
+        self.password_entry = customtkinter.CTkEntry(frame,
+                                                     show='*')
+        self.password_entry.place(relx=0.6, rely=0.6, anchor=CENTER)
+
+        commitButton = customtkinter.CTkButton(self.win,
+                                               command=self.commit,
+                                               text='Add')
+        commitButton.place(relx=0.8, rely=0.8, anchor=CENTER)
 
     def commit(self):
         name = self.name_entry.get()
         email = self.email_entry.get()
         password = self.password_entry.get()
         if add_password(name, email, password):
-            self.win.destroy()
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Password successfully added.")
+            self.window = customtkinter.CTkToplevel(self.root)
+            self.window.title("Add Password")
+            label = customtkinter.CTkLabel(
+                self.window, text="Password successfully added.")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
-                window, text="Close", command=window.destroy)
+            button_close = customtkinter.CTkButton(
+                self.window, text="Close", command=self.newWindow)
             button_close.pack(fill='x')
-            self.root.destroy()
-            self.__init__(self.root)
         else:
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Incorrect data!")
+            window = customtkinter.CTkToplevel()
+            label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
-                window, text="Close", command=window.destroy)
+            button_close = customtkinter.CTkButton(
+                window, text="Close", command=window)
             button_close.pack(fill='x')
 
     def edit(self):
         choice = self.table.focus()
         if(len(choice) != 0):
-            param = self.table.item(choice)
-            self.win = tk.Toplevel(self.root)
-            self.win.title("Edit Password")
+            self.win = customtkinter.CTkToplevel(master=self.root)
+            self.win.title("Edit")
             self.win.geometry('400x300')
-            name = tk.Label(self.win)
-            name["justify"] = "center"
-            name["text"] = "name"
-            name.place(x=20, y=20, width=100, height=20)
+            frame = customtkinter.CTkFrame(master=self.win,
+                                           width=500,
+                                           height=450,
+                                           corner_radius=10)
+            frame.pack(padx=20, pady=20)
+            param = self.table.item(choice)
+            name = customtkinter.CTkLabel(master=frame,
+                                          justify='center',
+                                          text='name')
+            name.place(relx=0.3, rely=0.2, anchor=CENTER)
 
-            email = tk.Label(self.win)
-            email["justify"] = "center"
-            email["text"] = "e-mail"
-            email.place(x=20, y=70, width=100, height=20)
+            email = customtkinter.CTkLabel(master=frame,
+                                           justify="center",
+                                           text="e-mail")
+            email.place(relx=0.3, rely=0.4, anchor=CENTER)
 
-            password = tk.Label(self.win)
-            password["justify"] = "center"
-            password["text"] = "password"
-            password.place(x=20, y=120, width=100, height=20)
-            self.name_entry = tk.Entry(self.win,
-                                       font=('calibri', 10, 'normal'))
-            self.name_entry.insert(0, param['values'][1])
-            self.name_entry.place(x=130, y=20, width=200, height=20)
+            password = customtkinter.CTkLabel(master=frame,
+                                              justify="center",
+                                              text="password")
+            password.place(relx=0.3, rely=0.6, anchor=CENTER)
 
-            self.email_entry = tk.Entry(self.win,
-                                        font=('calibri', 10, 'normal'))
-            self.email_entry.place(x=130, y=70, width=200, height=20)
-            self.email_entry.insert(0, param['values'][2])
-            self.password_entry = tk.Entry(self.win,
-                                           font=('calibri', 10, 'normal'), text=param['values'][3])
-            self.password_entry.place(x=130, y=120, width=200, height=20)
-            self.password_entry.insert(0, param['values'][3])
-            commitButton = tk.Button(self.win, command=self.editPassword, text='Edit', font=(
-                "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=280, y=160, width=70, height=25)
+            self.name_entry = customtkinter.CTkEntry(frame)
+            self.name_entry.place(relx=0.6, rely=0.2, anchor=CENTER)
+
+            self.email_entry = customtkinter.CTkEntry(frame)
+            self.email_entry.place(relx=0.6, rely=0.4, anchor=CENTER)
+
+            self.password_entry = customtkinter.CTkEntry(frame,
+                                                         show='*')
+            self.password_entry.place(relx=0.6, rely=0.6, anchor=CENTER)
+
+            commitButton = customtkinter.CTkButton(self.win,
+                                                   command=self.editPassword,
+                                                   text='Edit')
+            commitButton.place(relx=0.8, rely=0.8, anchor=CENTER)
 
     def editPassword(self):
         name = self.name_entry.get()
         email = self.email_entry.get()
         password = self.password_entry.get()
-        id = self.table.item(self.table.focus()[0])
-        print(id)
+        id = self.table.item(self.table.focus())['values'][0]
         if edit_password(name, email, password, id):
-            self.win.destroy()
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Password successfully edited.")
+            self.window = customtkinter.CTkToplevel(self.root)
+            self.window.title("Edit Password")
+            label = customtkinter.CTkLabel(
+                self.window, text="Password successfully edited.")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
-                window, text="Close", command=window.destroy)
+            button_close = customtkinter.CTkButton(
+                self.window, text="Close", command=self.newWindow)
             button_close.pack(fill='x')
-            self.root.destroy()
-            self.__init__(self.root)
         else:
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Incorrect data!")
+            window = customtkinter.CTkToplevel()
+            label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
+            button_close = customtkinter.CTkButton(
                 window, text="Close", command=window.destroy)
             button_close.pack(fill='x')
 
+    def newWindow(self):
+        self.win.destroy()
+        self.window.destroy()
+        self.frame.destroy()
+        self.root.withdraw()
+        toplevel = customtkinter.CTkToplevel(self.root)
+        app = AccountWindow(toplevel)
+
     def delete(self):
-        window = tk.Toplevel()
-        window.geometry('300x300')
-        label = tk.Label(
-            window, text="Press Delete if you want to delete your password")
-        label.place(x=10, y=20, width=300, height=50)
-        button_close = tk.Button(
-            window, text="Back", command=window.destroy)
-        button_close.place(x=80, y=120, width=50, height=30)
-        button_delete = tk.Button(
-            window, text="Delete", command=self.deleteConfirmed)
-        button_delete.place(x=160, y=120, width=50, height=30)
+        choice = self.table.focus()
+        if(len(choice) != 0):
+            self.win = customtkinter.CTkToplevel()
+            self.win.geometry('400x400')
+            label = customtkinter.CTkLabel(
+                self.win,
+                text="Press Delete if you want to delete your password")
+            label.place(relx=0.5, rely=0.2, anchor=CENTER)
+            button_close = customtkinter.CTkButton(
+                self.win, text="Back", command=self.win.destroy)
+            button_close.place(relx=0.3, rely=0.7, anchor=CENTER)
+            button_delete = customtkinter.CTkButton(
+                self.win, text="Delete", command=self.deleteConfirmed)
+            button_delete.place(relx=0.7, rely=0.7, anchor=CENTER)
 
     def deleteConfirmed(self):
         id = str(self.table.item(self.table.focus())['values'][0])
         if delete_password(id):
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Password successfully deleted.")
+            self.window = customtkinter.CTkToplevel(self.root)
+            self.window.title("Edit Password")
+            label = customtkinter.CTkLabel(
+                self.window, text="Password successfully edited.")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
-                window, text="Close", command=window.destroy)
+            button_close = customtkinter.CTkButton(
+                self.window, text="Close", command=self.newWindow)
             button_close.pack(fill='x')
-            self.root.destroy()
-            self.__init__(self.root)
 
     def generate(self):
         # num_of_special, length, num_of_capital, num_of_numbers#
-        self.win = tk.Toplevel(self.root)
+        self.win = customtkinter.CTkToplevel(self.root)
         self.win.title("Generate Password")
         self.win.geometry('400x350')
-        length = tk.Label(self.win)
+        length = customtkinter.CTkLabel(self.win)
         length["justify"] = "center"
         length["text"] = "Length of password"
-        length.place(x=40, y=20, width=150, height=20)
+        length.place(relx=0.2, rely=0.1, anchor=CENTER)
 
-        special = tk.Label(self.win)
+        special = customtkinter.CTkLabel(self.win)
         special["justify"] = "center"
         special["text"] = "Num of special characters"
-        special.place(x=40, y=70, width=150, height=20)
+        special.place(relx=0.2, rely=0.3, anchor=CENTER)
 
-        capital = tk.Label(self.win)
+        capital = customtkinter.CTkLabel(self.win)
         capital["justify"] = "center"
         capital["text"] = "Num of capital characters"
-        capital.place(x=40, y=120, width=150, height=20)
+        capital.place(relx=0.2, rely=0.5, anchor=CENTER)
 
-        numbers = tk.Label(self.win)
+        numbers = customtkinter.CTkLabel(self.win)
         numbers["justify"] = "center"
         numbers["text"] = "Num of numbers"
-        numbers.place(x=40, y=170, width=150, height=20)
+        numbers.place(relx=0.2, rely=0.7, anchor=CENTER)
 
-        self.generator = tk.Label(self.win)
+        self.generator = customtkinter.CTkLabel(self.win)
         self.generator["justify"] = "center"
-        self.generator.place(x=50, y=250, width=300, height=20)
+        self.generator["text"] = ""
+        self.generator.place(relx=0.5, rely=0.8, anchor=CENTER)
 
-        self.length_entry = tk.Entry(self.win,
-                                     font=('calibri', 10, 'normal'))
-        self.length_entry.place(x=230, y=20, width=30, height=20)
+        self.length_entry = customtkinter.CTkEntry(self.win,)
+        self.length_entry.place(relx=0.6, rely=0.1, anchor=CENTER)
 
-        self.special_entry = tk.Entry(self.win,
-                                      font=('calibri', 10, 'normal'))
-        self.special_entry.place(x=230, y=70, width=30, height=20)
+        self.special_entry = customtkinter.CTkEntry(self.win)
+        self.special_entry.place(relx=0.6, rely=0.3, anchor=CENTER)
 
-        self.capital_entry = tk.Entry(self.win,
-                                      font=('calibri', 10, 'normal'))
-        self.capital_entry.place(x=230, y=120, width=30, height=20)
+        self.capital_entry = customtkinter.CTkEntry(self.win)
+        self.capital_entry.place(relx=0.6, rely=0.5, anchor=CENTER)
 
-        self.numbers_entry = tk.Entry(self.win,
-                                      font=('calibri', 10, 'normal'))
-        self.numbers_entry.place(x=230, y=170, width=30, height=20)
+        self.numbers_entry = customtkinter.CTkEntry(self.win)
+        self.numbers_entry.place(relx=0.6, rely=0.7, anchor=CENTER)
 
-        generateButton = tk.Button(self.win, command=self.generateProcessed, text='Generate', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=280, y=290, width=70, height=25)
+        generateButton = customtkinter.CTkButton(
+            self.win, command=self.generateProcessed, text='Generate')
+        generateButton.place(relx=0.7, rely=0.9, anchor=CENTER)
 
-        BackButton = tk.Button(self.win, command=self.win.destroy, text='Back', font=(
-            "Calibri", 10), bd=3, activeforeground='white', activebackground='gray', justify='center').place(x=180, y=290, width=70, height=25)
+        BackButton = customtkinter.CTkButton(
+            self.win, command=self.win.destroy, text='Back')
+        BackButton.place(relx=0.3, rely=0.9, anchor=CENTER)
 
     def generateProcessed(self):
         length = self.length_entry.get()
@@ -368,24 +482,24 @@ class AccountWindow:
         if test:
             self.root.clipboard_append(password)
             self.generator['text'] = password
-            window = tk.Toplevel()
-            label = tk.Label(
+            window = customtkinter.CTkToplevel()
+            label = customtkinter.CTkLabel(
                 window, text="Password generated. Copied to clipboard")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
+            button_close = customtkinter.CTkButton(
                 window, text="Close", command=window.destroy)
             button_close.pack(fill='x')
         else:
-            window = tk.Toplevel()
-            label = tk.Label(window, text="Incorrect data!")
+            window = customtkinter.CTkToplevel()
+            label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
-            button_close = tk.Button(
+            button_close = customtkinter.CTkButton(
                 window, text="Close", command=window.destroy)
             button_close.pack(fill='x')
 
 
 def main():
-    root = tk.Tk()
+    root = customtkinter.CTk()
     app = WelcomeWindow(root)
     root.mainloop()
 
