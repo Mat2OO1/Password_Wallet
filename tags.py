@@ -95,6 +95,7 @@ class WelcomeWindow:
 
         else:
             window = customtkinter.CTkToplevel()
+            window.title("Register")
             label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
             button_close = customtkinter.CTkButton(
@@ -113,6 +114,7 @@ class LoginWindow:
         self.root = root
         self.root.title("Password Wallet")
         self.root.geometry('600x500')
+        self.root.protocol('WM_DELETE_WINDOW', exit)
         frame = customtkinter.CTkFrame(master=self.root,
                                        width=500,
                                        height=450,
@@ -158,17 +160,37 @@ class LoginWindow:
         resetButton.place(relx=0.2, rely=0.8, anchor=CENTER)
 
     def reset(self):
-        window = customtkinter.CTkToplevel()
-        label = customtkinter.CTkLabel(window, text="Forgot Password")
-        label.pack(fill='x', padx=50, pady=5)
-        button_close = customtkinter.CTkButton(
-            window, text="Close", command=window.destroy)
-        button_close.pack(fill='x')
+        self.win = customtkinter.CTkToplevel(master=self.root)
+        self.win.title("Forgot Password")
+        self.win.geometry('400x300')
+        frame = customtkinter.CTkFrame(master=self.win,
+                                       width=500,
+                                       height=450,
+                                       corner_radius=10)
+        frame.pack(padx=20, pady=20)
+
+        info = customtkinter.CTkLabel(master=frame,
+                                      justify='center',
+                                      text='Are you sure? \n All data will be lost')
+        info.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        confirmButton = customtkinter.CTkButton(self.win,
+                                                command=self.confirm,
+                                                text='Confirm')
+        confirmButton.place(relx=0.7, rely=0.7, anchor=CENTER)
+
+    def confirm(self):
+        pp.reset()
+        self.win.destroy()
+        self.root.withdraw()
+        toplevel = customtkinter.CTkToplevel(self.root)
+        app = WelcomeWindow(toplevel)
 
     def password_process(self):
         password = self.name_entry.get()
         if pp.check_password(password):
             self.window = customtkinter.CTkToplevel()
+            self.window.title = "Login successfull"
             label = customtkinter.CTkLabel(
                 self.window, text="Correct password!")
             label.pack(fill='x', padx=50, pady=5)
@@ -189,12 +211,16 @@ class LoginWindow:
         toplevel = customtkinter.CTkToplevel(self.root)
         app = AccountWindow(toplevel)
 
+    def exit(self):
+        self.root.destroy()
+
 
 class AccountWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("Password Wallet")
         self.root.geometry('800x600')
+        self.root.protocol('WM_DELETE_WINDOW', exit)
         self.frame = customtkinter.CTkFrame(master=self.root,
                                             width=700,
                                             height=400,
@@ -238,7 +264,7 @@ class AccountWindow:
         self.table.column("password", width=180, anchor=W)
         self.table.heading("id", text="Id", anchor=CENTER)
         self.table.heading("name", text="Name", anchor=CENTER)
-        self.table.heading("email", text="E-mail", anchor=CENTER)
+        self.table.heading("email", text="E-mail/Login", anchor=CENTER)
         self.table.heading("password", text="Password", anchor=CENTER)
         i = 0
         for row in pp.output:
@@ -347,6 +373,7 @@ class AccountWindow:
             button_close.pack(fill='x')
         else:
             window = customtkinter.CTkToplevel()
+            window.title = "Add password"
             label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
             button_close = customtkinter.CTkButton(
@@ -411,7 +438,7 @@ class AccountWindow:
             button_close.pack(fill='x')
         else:
             window = customtkinter.CTkToplevel()
-            window.title('Edit Password')
+            window.title("Edit Password")
             label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
             button_close = customtkinter.CTkButton(
@@ -429,9 +456,9 @@ class AccountWindow:
     def delete(self):
         choice = self.table.focus()
         if(len(choice) != 0):
-            self.win = customtkinter.CTkToplevel()
+            self.win = customtkinter.CTkToplevel(self.root)
             self.win.geometry('400x400')
-            self.win.title = 'Delete Password'
+            self.win.title = "Delete Password"
             label = customtkinter.CTkLabel(
                 self.win,
                 text="Press Delete if you want to delete your password")
@@ -515,8 +542,8 @@ class AccountWindow:
         if test:
             self.root.clipboard_append(password)
             self.generator['text'] = password
-            window = customtkinter.CTkToplevel()
-            window.title = 'Generate Password'
+            window = customtkinter.CTkToplevel(self.root)
+            window.title = "Generate Password"
             label = customtkinter.CTkLabel(
                 window, text="Password generated. Copied to clipboard")
             label.pack(fill='x', padx=50, pady=5)
@@ -525,12 +552,15 @@ class AccountWindow:
             button_close.pack(fill='x')
         else:
             window = customtkinter.CTkToplevel()
-            window.title('Generate Password')
+            window.title("Generate Password")
             label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
             button_close = customtkinter.CTkButton(
                 window, text="Close", command=window.destroy)
             button_close.pack(fill='x')
+
+    def exit(self):
+        self.root.destroy()
 
 
 def main():
