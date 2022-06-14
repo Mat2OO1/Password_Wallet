@@ -1,6 +1,6 @@
 from importlib.metadata import entry_points
 import tkinter as tk
-from tkinter import CENTER, ttk
+from tkinter import CENTER, LEFT, W, ttk
 import tkinter.font as tkFont
 from backend import *
 import customtkinter
@@ -9,6 +9,7 @@ import customtkinter
 customtkinter.set_appearance_mode("dark")
 # Themes: blue (default), dark-blue, green
 customtkinter.set_default_color_theme("dark-blue")
+pp = PasswordProcess()
 
 
 class WelcomeWindow:
@@ -53,7 +54,7 @@ class WelcomeWindow:
                                                  text='Register')
         registerButton.place(relx=0.35, rely=0.7, anchor=CENTER)
 
-        if(plogin()):
+        if(pp.plogin()):
             registerButton.configure(state=tk.DISABLED)
         else:
             loginButton.configure(state=tk.DISABLED)
@@ -88,11 +89,9 @@ class WelcomeWindow:
 
     def registerProcessed(self):
         password = self.password_entry.get()
-        if first_login(password):
+        if pp.first_login(password):
             self.win.destroy()
-            self.root.destroy()
-            self.app = LoginWindow(self.root)
-            self.root.mainloop()
+            self.log_in()
 
         else:
             window = customtkinter.CTkToplevel()
@@ -149,9 +148,26 @@ class LoginWindow:
                                                text='Log In')
         commitButton.place(relx=0.8, rely=0.8, anchor=CENTER)
 
+        resetButton = customtkinter.CTkButton(master=frame,
+                                              command=self.reset,
+                                              width=120,
+                                              height=32,
+                                              border_width=0,
+                                              corner_radius=8,
+                                              text='Forgot Password')
+        resetButton.place(relx=0.2, rely=0.8, anchor=CENTER)
+
+    def reset(self):
+        window = customtkinter.CTkToplevel()
+        label = customtkinter.CTkLabel(window, text="Forgot Password")
+        label.pack(fill='x', padx=50, pady=5)
+        button_close = customtkinter.CTkButton(
+            window, text="Close", command=window.destroy)
+        button_close.pack(fill='x')
+
     def password_process(self):
         password = self.name_entry.get()
-        if check_password(password):
+        if pp.check_password(password):
             self.window = customtkinter.CTkToplevel()
             label = customtkinter.CTkLabel(
                 self.window, text="Correct password!")
@@ -178,12 +194,12 @@ class AccountWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("Password Wallet")
-        self.root.geometry('700x600')
+        self.root.geometry('800x600')
         self.frame = customtkinter.CTkFrame(master=self.root,
-                                            width=500,
-                                            height=450,
+                                            width=700,
+                                            height=400,
                                             corner_radius=10)
-        self.frame.pack(padx=20, pady=20)
+        self.frame.pack(padx=40, pady=40)
         title = customtkinter.CTkLabel(master=self.frame,
                                        justify="center",
                                        width=140,
@@ -191,27 +207,41 @@ class AccountWindow:
                                        corner_radius=8,
                                        text="Password Wallet"
                                        )
-        title.place(x=100, y=5, width=400, height=40)
-        output = show_passwords()
-        style = ttk.Style(root)
-        style.theme_use("clam")
-        style.configure("Treeview", background="#373a45",
-                        fieldbackground="#373a45", foreground="#373a45")
+        title.place(relx=0.5, rely=0.1, anchor=CENTER)
+        style = ttk.Style()
+        style.configure("Treeview",
+                        highlightthickness=0,
+                        bd=0,
+                        font=(
+                            'Calibri', 11))
+        style.configure("Treeview.Heading", font=(
+            'Calibri', 13, 'bold'))
+        style.layout("Treeview", [('mystyle.Treeview.treearea', {
+            'sticky': 'nswe'})])
+        style.configure('Treeview',
+                        rowheight=30,
+                        background='#2E2E2C',
+                        foreground='white',
+                        fieldbackground='#3c78a3')
 
-        self.table = ttk.Treeview(self.frame)
-        self.table['columns'] = ('id', 'nazwa', 'email', 'haslo')
-        self.table.column("#0", width=0, anchor=CENTER)
-        self.table.column("id", width=10, anchor=CENTER)
-        self.table.column("nazwa", width=80, anchor=CENTER)
-        self.table.column("email", width=140, anchor=CENTER)
-        self.table.column("haslo", width=80, anchor=CENTER)
-        self.table.heading("#0", text="", anchor=CENTER)
+        style.map('Treeview',
+                  background=[['selected', '#3c78a3']],
+                  foreground=[['selected', 'white']])
+        self.table = ttk.Treeview(
+            self.frame, style="mystyle.Treeview")
+        self.table['show'] = 'headings'
+        self.table['columns'] = ('id', 'name', 'email', 'password')
+        self.table["displaycolumns"] = ("name", "email", 'password')
+        self.table.column("id", width=10, stretch=0, anchor=W)
+        self.table.column("name", width=180, stretch=0, anchor=W)
+        self.table.column("email", width=180, anchor=W)
+        self.table.column("password", width=180, anchor=W)
         self.table.heading("id", text="Id", anchor=CENTER)
-        self.table.heading("nazwa", text="Nazwa", anchor=CENTER)
+        self.table.heading("name", text="Name", anchor=CENTER)
         self.table.heading("email", text="E-mail", anchor=CENTER)
-        self.table.heading("haslo", text="Haslo", anchor=CENTER)
+        self.table.heading("password", text="Password", anchor=CENTER)
         i = 0
-        for row in output:
+        for row in pp.output:
             self.table.insert(parent='', index='end', iid=i, text='',
                               values=(row[0], row[1], row[2], row[3]))
             i += 1
@@ -264,7 +294,7 @@ class AccountWindow:
 
     def add(self):
         self.win = customtkinter.CTkToplevel(master=self.root)
-        self.win.title("Register")
+        self.win.title("Add Password")
         self.win.geometry('400x300')
         frame = customtkinter.CTkFrame(master=self.win,
                                        width=500,
@@ -306,7 +336,7 @@ class AccountWindow:
         name = self.name_entry.get()
         email = self.email_entry.get()
         password = self.password_entry.get()
-        if add_password(name, email, password):
+        if pp.add_password(name, email, password):
             self.window = customtkinter.CTkToplevel(self.root)
             self.window.title("Add Password")
             label = customtkinter.CTkLabel(
@@ -370,7 +400,7 @@ class AccountWindow:
         email = self.email_entry.get()
         password = self.password_entry.get()
         id = self.table.item(self.table.focus())['values'][0]
-        if edit_password(name, email, password, id):
+        if pp.edit_password(name, email, password, id):
             self.window = customtkinter.CTkToplevel(self.root)
             self.window.title("Edit Password")
             label = customtkinter.CTkLabel(
@@ -381,6 +411,7 @@ class AccountWindow:
             button_close.pack(fill='x')
         else:
             window = customtkinter.CTkToplevel()
+            window.title('Edit Password')
             label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
             button_close = customtkinter.CTkButton(
@@ -400,6 +431,7 @@ class AccountWindow:
         if(len(choice) != 0):
             self.win = customtkinter.CTkToplevel()
             self.win.geometry('400x400')
+            self.win.title = 'Delete Password'
             label = customtkinter.CTkLabel(
                 self.win,
                 text="Press Delete if you want to delete your password")
@@ -413,11 +445,11 @@ class AccountWindow:
 
     def deleteConfirmed(self):
         id = str(self.table.item(self.table.focus())['values'][0])
-        if delete_password(id):
+        if pp.delete_password(id):
             self.window = customtkinter.CTkToplevel(self.root)
-            self.window.title("Edit Password")
+            self.window.title("Delete Password")
             label = customtkinter.CTkLabel(
-                self.window, text="Password successfully edited.")
+                self.window, text="Password successfully deleted.")
             label.pack(fill='x', padx=50, pady=5)
             button_close = customtkinter.CTkButton(
                 self.window, text="Close", command=self.newWindow)
@@ -478,11 +510,13 @@ class AccountWindow:
         special = self.special_entry.get()
         capital = self.capital_entry.get()
         numbers = self.numbers_entry.get()
-        test, password = generate_password(length, special, capital, numbers)
+        test, password = pp.generate_password(
+            length, special, capital, numbers)
         if test:
             self.root.clipboard_append(password)
             self.generator['text'] = password
             window = customtkinter.CTkToplevel()
+            window.title = 'Generate Password'
             label = customtkinter.CTkLabel(
                 window, text="Password generated. Copied to clipboard")
             label.pack(fill='x', padx=50, pady=5)
@@ -491,6 +525,7 @@ class AccountWindow:
             button_close.pack(fill='x')
         else:
             window = customtkinter.CTkToplevel()
+            window.title('Generate Password')
             label = customtkinter.CTkLabel(window, text="Incorrect data!")
             label.pack(fill='x', padx=50, pady=5)
             button_close = customtkinter.CTkButton(
