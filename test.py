@@ -1,6 +1,6 @@
-from controllers import *
+from models import Model
 
-pp = Controller()
-
-pp.delete_password(4)
-print(pp.show_passwords())
+m = Model()
+m.create_db()
+m.add_password('ja', 'da', 'rfs')
+print(m.show_passwords[0])

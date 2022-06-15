@@ -60,7 +60,6 @@ class Controller:
         self.root.withdraw()
         toplevel = customtkinter.CTkToplevel(self.root)
         toplevel.geometry("350x350")
-
         self.app = RegisterView(toplevel, self)
         self.ActiveView = self.app
 
@@ -68,6 +67,7 @@ class Controller:
     def registerProcessed(self):
         password = self.ActiveView.password_entry.get()
         self.model.first_login(password)
+        self.root.withdraw()
         self.ActiveView.root.destroy()
         self.log_in()
 

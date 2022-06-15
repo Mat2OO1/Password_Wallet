@@ -148,14 +148,11 @@ class AccountView:
                                             height=400,
                                             corner_radius=10)
         self.frame.pack(padx=40, pady=40)
-        title = customtkinter.CTkLabel(master=self.frame,
-                                       justify="center",
-                                       width=140,
-                                       height=25,
-                                       corner_radius=8,
-                                       text="Password Wallet"
-                                       )
-        title.place(relx=0.5, rely=0.1, anchor=CENTER)
+        text = customtkinter.CTkLabel(
+            self.frame,
+            justify="center",
+            text="In order to get your password, double-click on it")
+        text.place(relx=0.5, rely=0.1, anchor=CENTER)
         style = ttk.Style()
         style.configure("Treeview",
                         highlightthickness=0,

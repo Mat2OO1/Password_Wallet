@@ -1,13 +1,9 @@
-from setuptools import setup
-from controller import generate_password
-import random
-
-f = open('key.txt', 'r')
-f.write(generate_password(random.random(8, 20), True, True, True, True))
-f.close()
-
+from setuptools import setup, find_packages
 setup(
     name='PasswordWallet',
     version='1.0',
-    packages='PasswordWallet'
+    packages=find_packages(
+        where='.',
+        include=['Passwordwallet*'],
+    ),
 )
